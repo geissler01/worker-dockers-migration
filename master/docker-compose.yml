@@ -1,46 +1,49 @@
 version: '3.8'
 
-# Configuración base que comparten todos los servicios de Airflow
+# Aquí inyectamos las variables a la fuerza para que no dependa del archivo .env
 x-airflow-common: &airflow-common
   image: apache/airflow:3.2.0
-  env_file:
-    - ../.env
   depends_on:
     - rabbitmq
+  environment:
+    - AIRFLOW__CORE__EXECUTOR=CeleryExecutor
+    - AIRFLOW__CORE__FERNET_KEY=jZ3H_O2e8mFw7G0bE5aN9cT1vY6kQ4xL8pD2rU5sM9I=
+    - AIRFLOW__DATABASE__SQL_ALCHEMY_CONN=postgresql+psycopg2://coder-ra-c6:Riwi2026**@51.222.142.204:5432/alzheimer_airflow_db_2
+    - AIRFLOW__CELERY__BROKER_URL=amqp://guest:guest@10.0.1.228:5672/
+    - AIRFLOW__CELERY__RESULT_BACKEND=db+postgresql://coder-ra-c6:Riwi2026**@51.222.142.204:5432/alzheimer_airflow_db_2
+    - AIRFLOW__CORE__LOAD_EXAMPLES=False
+  # --- MAGIA DE DOCKER PARA CREAR EL USUARIO ---
+    # --- Forzar el Gestor de Usuarios Clásico (FAB) ---
+    - AIRFLOW__CORE__AUTH_MANAGER=airflow.providers.fab.auth_manager.fab_auth_manager.FabAuthManager
+    - _AIRFLOW_WWW_USER_CREATE=true
+    - _AIRFLOW_WWW_USER_USERNAME=equipo7
+    - _AIRFLOW_WWW_USER_PASSWORD=admin123
 
 services:
   # El Mensajero (RabbitMQ)
   rabbitmq:
     image: rabbitmq:3-management
-    environment:
-      - RABBITMQ_DEFAULT_USER=equipo7
-      - RABBITMQ_DEFAULT_PASS=admin123
     ports:
       - "5672:5672"
       - "15672:15672"
 
-  # Inicializador (Crea las tablas en tu Postgres externa y el usuario admin)
+  # Inicializador: usuario ya creado antes en las variables de entorno
   airflow-init:
     <<: *airflow-common
-    command: >
-      bash -c "
-      airflow db migrate &&
-      airflow users create -r Admin -u equipo7 -p admin123 -e geislert01@hotmail.com -f Equipo8 -l RIWI
-      "
-
-  # Interfaz Gráfica (Puerto 8080)
+    command: airflow db migrate
+  # Interfaz Gráfica
   airflow-webserver:
     <<: *airflow-common
-    command: webserver
+    command: api-server
     ports:
       - "8080:8080"
 
-  # El Cerebro (Scheduler)
+  # El Cerebro
   airflow-scheduler:
     <<: *airflow-common
     command: scheduler
 
-  # Monitor de Workers (Puerto 5555)
+  # Monitor de Workers
   airflow-flower:
     <<: *airflow-common
     command: celery flower
