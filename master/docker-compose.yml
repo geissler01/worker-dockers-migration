@@ -12,6 +12,9 @@ services:
   # El Mensajero (RabbitMQ)
   rabbitmq:
     image: rabbitmq:3-management
+    environment:
+      - RABBITMQ_DEFAULT_USER=equipo7
+      - RABBITMQ_DEFAULT_PASS=admin123
     ports:
       - "5672:5672"
       - "15672:15672"
