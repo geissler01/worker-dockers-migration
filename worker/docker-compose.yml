@@ -1,0 +1,9 @@
+version: '3.8'
+
+services:
+  # El Ejecutor
+  airflow-worker:
+    image: apache/airflow:3.2.0
+    env_file:
+      - ../.env
+    command: celery worker

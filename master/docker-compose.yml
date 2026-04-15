@@ -1,0 +1,45 @@
+version: '3.8'
+
+# Configuración base que comparten todos los servicios de Airflow
+x-airflow-common: &airflow-common
+  image: apache/airflow:3.2.0
+  env_file:
+    - ../.env
+  depends_on:
+    - rabbitmq
+
+services:
+  # El Mensajero (RabbitMQ)
+  rabbitmq:
+    image: rabbitmq:3-management
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+
+  # Inicializador (Crea las tablas en tu Postgres externa y el usuario admin)
+  airflow-init:
+    <<: *airflow-common
+    command: >
+      bash -c "
+      airflow db migrate &&
+      airflow users create -r Admin -u equipo7 -p admin123 -e geislert01@hotmail.com -f Equipo8 -l RIWI
+      "
+
+  # Interfaz Gráfica (Puerto 8080)
+  airflow-webserver:
+    <<: *airflow-common
+    command: webserver
+    ports:
+      - "8080:8080"
+
+  # El Cerebro (Scheduler)
+  airflow-scheduler:
+    <<: *airflow-common
+    command: scheduler
+
+  # Monitor de Workers (Puerto 5555)
+  airflow-flower:
+    <<: *airflow-common
+    command: celery flower
+    ports:
+      - "5555:5555"
