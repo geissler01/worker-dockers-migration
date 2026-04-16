@@ -1,9 +1,16 @@
 version: '3.8'
 
 services:
-  # El Ejecutor
   airflow-worker:
     image: apache/airflow:3.2.0
-    env_file:
-      - ../.env
     command: celery worker
+    environment:
+      # ¡OJO! Fíjate que ahora tienen doble guion bajo ()
+    - AIRFLOW__CORE__EXECUTOR=CeleryExecutor
+    - AIRFLOW__CORE__FERNET_KEY=jZ3H_O2e8mFw7G0bE5aN9cT1vY6kQ4xL8pD2rU5sM9I=
+    - AIRFLOW__ DATABASE__SQL_ALCHEMY_CONN=postgresql+psycopg2://coder-ra-c6:Riwi2026**@51.222.142.204:5432/alzheimer_airflow_db_2
+      # Si el Master y el Worker están en la misma red de AWS, esta IP privada está bien. 
+      # Si están en redes distintas, cámbiala por la IP Pública del Master.
+    - AIRFLOW__CELERY__BROKER_URL=amqp://guest:guest@18.222.165.186:5672/
+    - AIRFLOW__CELERY__RESULT_BACKEND=db+postgresql://coder-ra-c6:Riwi2026**@51.222.142.204:5432/alzheimer_airflow_db_2
+    - AIRFLOW__CORE__LOAD_EXAMPLES=False
