@@ -18,6 +18,7 @@ x-airflow-common: &airflow-common
     - _AIRFLOW_WWW_USER_CREATE=true
     - _AIRFLOW_WWW_USER_USERNAME=equipo7
     - _AIRFLOW_WWW_USER_PASSWORD=admin123
+    - AIRFLOW__API_AUTH__JWT_SECRET=riwi_pruebas_2026_secreto_super_largo_xyz
 
 services:
   # El Mensajero (RabbitMQ)
@@ -53,4 +54,3 @@ services:
     command: celery flower
     ports:
       - "5555:5555"
-
