@@ -4,6 +4,9 @@ services:
   airflow-worker:
     image: apache/airflow:3.2.0
     command: celery worker
+    # ---> AQUI AGREGAS EL VOLUMEN <---
+    volumes:
+      - /home/ubuntu/airflow_project/dags:/opt/airflow/dags
     environment:
       # ¡OJO! Fíjate que ahora tienen doble guion bajo (__)
       - AIRFLOW__CORE__EXECUTOR=CeleryExecutor
