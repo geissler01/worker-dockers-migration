@@ -6,7 +6,7 @@ services:
     command: celery worker
     # ---> AQUI AGREGAS EL VOLUMEN <---
     volumes:
-      - /home/ubuntu/airflow_project/dags:/opt/airflow/dags
+      - /home/ubuntu/data-platform/airflow/dags:/opt/airflow/dags
     environment:
       # ¡OJO! Fíjate que ahora tienen doble guion bajo (__)
       - AIRFLOW__CORE__EXECUTOR=CeleryExecutor

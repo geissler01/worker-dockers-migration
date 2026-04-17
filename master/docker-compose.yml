@@ -35,6 +35,8 @@ services:
   airflow-webserver:
     <<: *airflow-common
     command: api-server
+    volumes:
+      - /home/ubuntu/data-platform/airflow/dags:/opt/airflow/dags
     ports:
       - "8080:8080"
 
@@ -42,6 +44,8 @@ services:
   airflow-scheduler:
     <<: *airflow-common
     command: scheduler
+    volumes:
+      - /home/ubuntu/data-platform/airflow/dags:/opt/airflow/dags
 
   # Monitor de Workers
   airflow-flower:
@@ -49,3 +53,4 @@ services:
     command: celery flower
     ports:
       - "5555:5555"
+
